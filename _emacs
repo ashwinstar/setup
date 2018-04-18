@@ -27,12 +27,13 @@
 ; The M-[aeh] bindings are not working for C and C++ modes
 ;
 
-(setq java-mode-hook
-	'(lambda () (auto-fill-mode 1)
-		(setq fill-column 80)
-		(setq comment-column 32)
-		(define-key c-mode-map [delete] 'delete-char)
-		(define-key c-mode-map [C-delete] 'kill-word) ))
+;(setq java-mode-hook
+;	'(lambda () (auto-fill-mode 1)
+;		(setq fill-column 80)
+;		(setq comment-column 32)
+;		(define-key c-mode-map [delete] 'delete-char)
+;		(define-key c-mode-map [C-delete] 'kill-word) ))
+
 
 ;;; C files
 
@@ -52,13 +53,13 @@
 
 (add-hook 'c-mode-hook
           (defun gpdb-c-mode-hook ()
-;;            (when (string-match "/gpdb4\\(ql\\)?/" buffer-file-name)
+            (when (string-match ".*gpdb.*" buffer-file-name)
               (c-set-style "gpdb")
               ;; Don't override the style we just set with the style in
               ;; `dir-locals-file'.  Emacs 23.4.1 needs this; it is obsolete,
               ;; albeit harmless, by Emacs 24.3.1.
               (set (make-local-variable 'ignored-local-variables)
-                   (append '(c-file-style) ignored-local-variables))))
+                   (append '(c-file-style) ignored-local-variables)))))
 
 (setq c++-mode-hook
 	'(lambda () (auto-fill-mode 1)
@@ -114,7 +115,7 @@
  ;; If there is more than one, they won't work right.
  '(ansi-color-names-vector
    ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
- '(custom-enabled-themes (quote (manoj-dark))))
+ '(custom-enabled-themes nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -125,3 +126,26 @@
 
 ; Enable spell checking for comments and strings in program
 (add-hook 'prog-mode-hook 'flyspell-prog-mode)
+
+
+; Enable IDO mode
+;(setq ido-enable-flex-matching t)
+;(setq ido-everywhere t)
+;(ido-mode 1)
+
+
+(defun my-full-build()
+  "Run full build for GPDB"
+  (interactive)
+  (let ((temp-comp compile-command))
+    (compile "cd ${SRC_DIR}; make install -w -s;" )
+    (setq compile-command temp-comp)))
+
+(global-set-key [f5] 'my-full-build)
+
+; follow compilation buffer
+(setq compilation-scroll-output t)
+(global-set-key [f6] 'shell)
+
+; bind M-/ to find-tag for finding files
+(global-set-key [?\M-/] 'find-tag)
